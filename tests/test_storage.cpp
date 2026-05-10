@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "../include/list_operator.hpp"
+#include "test_paths.hpp"
 
 #include <fstream>
 
@@ -14,7 +15,7 @@ void WriteFile(const std::string& file_name, const std::string& content) {
 } // namespace
 
 TEST(Storage, FromTextFileBuildsPrevNextAndRand) {
-    const std::string file_name = "test_storage_input.txt";
+    const std::string file_name = TestFile("test_storage_input.txt");
 
     WriteFile(
         file_name,
@@ -50,7 +51,7 @@ TEST(Storage, HeadReturnsNullForEmptyStorage) {
 }
 
 TEST(Storage, HeadReturnsFirstNode) {
-    const std::string file_name = "test_storage_head.txt";
+    const std::string file_name = TestFile("test_storage_head.txt");
 
     WriteFile(
         file_name,

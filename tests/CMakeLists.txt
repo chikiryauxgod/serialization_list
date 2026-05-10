@@ -3,6 +3,7 @@ add_executable(run_tests
     test_parse.cpp
     test_storage.cpp
     test_serialization.cpp
+    test_edge_cases.cpp
 )
 
 target_link_libraries(run_tests

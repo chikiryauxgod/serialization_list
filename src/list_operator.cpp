@@ -24,48 +24,6 @@ ListNode* ListStorage::Head() {
 }
 
 
-// std::pair<std::string, int> ListStorage::ParseLine(
-//     const std::string& line,
-//     std::size_t line_number
-// ) {
-//     const std::size_t separator_pos = line.rfind(kSeparator);
-
-//     if (separator_pos == std::string::npos) {
-//         throw std::runtime_error(
-//             "line " + std::to_string(line_number) + ": missing ';'"
-//         );
-//     }
-
-//     std::string data = line.substr(0, separator_pos);
-
-//     if (data.size() > kMaxDataSize) {
-//         throw std::runtime_error(
-//             "line " + std::to_string(line_number) + ": data is too long"
-//         );
-//     }
-
-//     const std::string rand_text = line.substr(separator_pos + 1);
-
-//     std::size_t parsed = 0;
-//     int rand_index = 0;
-
-//     try {
-//         rand_index = std::stoi(rand_text, &parsed);
-//     } catch (const std::exception&) {
-//         throw std::runtime_error(
-//             "line " + std::to_string(line_number) + ": invalid rand index"
-//         );
-//     }
-
-//     if (parsed != rand_text.size()) {
-//         throw std::runtime_error(
-//             "line " + std::to_string(line_number) + ": invalid rand index"
-//         );
-//     }
-
-//     return {std::move(data), rand_index};
-// }
-
 void ListStorage::FillLinks(const std::vector<int>& rand_indexes) {
     const std::size_t count = nodes.size();
 
@@ -207,33 +165,74 @@ void ListStorage::Serialize(const std::string& file_name) const {
 
 
 ListStorage ListStorage::Deserialize(const std::string& file_name) {
-    std::ifstream in(file_name, std::ios::binary);
+    std::ifstream input(file_name, std::ios::binary);
 
-    if (!in) {
+    if (!input) {
         throw std::runtime_error("failed to open " + file_name);
     }
 
-    std::uint32_t count = 0;
-    in.read(reinterpret_cast<char*>(&count), sizeof(count));
-
     ListStorage storage;
-    storage.nodes.resize(count);
+
+    std::uint32_t count = 0;
+
+    if (!input.read(
+            reinterpret_cast<char*>(&count),
+            sizeof(count)
+        )) {
+        throw std::runtime_error("corrupted binary file");
+    }
+
+    if (count > kMaxNodes) {
+        throw std::runtime_error("too many nodes");
+    }
 
     std::vector<int> rand_indexes;
     rand_indexes.reserve(count);
 
-    for (std::uint32_t i = 0; i < count; ++i) {
-        std::uint16_t size = 0;
-        in.read(reinterpret_cast<char*>(&size), sizeof(size));
+    storage.nodes.resize(count);
 
-        std::string data(size, '\0');
-        in.read(data.data(), size);
+    for (std::uint32_t i = 0; i < count; ++i) {
+        std::uint16_t data_size = 0;
+
+        if (!input.read(
+                reinterpret_cast<char*>(&data_size),
+                sizeof(data_size)
+            )) {
+            throw std::runtime_error("corrupted binary file");
+        }
+
+        if (data_size > kMaxDataSize) {
+            throw std::runtime_error("corrupted binary file");
+        }
+
+        storage.nodes[i].data.resize(data_size);
+
+        if (!input.read(
+                storage.nodes[i].data.data(),
+                static_cast<std::streamsize>(data_size)
+            )) {
+            throw std::runtime_error("corrupted binary file");
+        }
 
         std::int32_t rand_index = 0;
-        in.read(reinterpret_cast<char*>(&rand_index), sizeof(rand_index));
 
-        storage.nodes[i].data = std::move(data);
-        rand_indexes.push_back(rand_index);
+        if (!input.read(
+                reinterpret_cast<char*>(&rand_index),
+                sizeof(rand_index)
+            )) {
+            throw std::runtime_error("corrupted binary file");
+        }
+
+        if (rand_index == -1) {
+            rand_indexes.push_back(-1);
+        } else {
+            if (rand_index < 0 ||
+                static_cast<std::uint32_t>(rand_index) >= count) {
+                throw std::runtime_error("corrupted binary file");
+            }
+
+            rand_indexes.push_back(rand_index);
+        }
     }
 
     storage.FillLinks(rand_indexes);

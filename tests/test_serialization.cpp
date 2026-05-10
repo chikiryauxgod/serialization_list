@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "../include/list_operator.hpp"
+#include "test_paths.hpp"
 
 #include <fstream>
 
@@ -14,8 +15,8 @@ void WriteFile(const std::string& file_name, const std::string& content) {
 } // namespace
 
 TEST(Serialization, RoundTripPreservesStructure) {
-    const std::string input_file = "serialization_input.txt";
-    const std::string binary_file = "serialization_output.bin";
+    const std::string input_file = TestFile("serialization_input.txt");
+    const std::string binary_file = TestFile("serialization_output.bin");
 
     WriteFile(
         input_file,
@@ -54,7 +55,7 @@ TEST(Serialization, RoundTripPreservesStructure) {
 }
 
 TEST(Serialization, EmptyStorageRoundTrip) {
-    const std::string binary_file = "empty_storage.bin";
+    const std::string binary_file = TestFile("empty_storage.bin");
 
     ListStorage original;
     original.Serialize(binary_file);
