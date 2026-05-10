@@ -1,13 +1,16 @@
 #include "../include/list_operator.hpp"
+#include "../include/config.hpp"
 
 #include <iostream>
 #include <stdexcept>
 #include <unordered_map>
 
 int main() {
-    
+
     try {
-        auto storage = ListStorage::FromTextFile("inlet.in");
+        const auto config = AppConfig::LoadConfig("config.cfg");
+
+        auto storage = ListStorage::FromTextFile(config.input_file);
         ListNode* head = storage.Head();
         storage.PrintList(head);
         storage.Serialize("outlet.out");
