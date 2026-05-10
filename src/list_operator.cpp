@@ -1,4 +1,5 @@
 #include "../include/list_operator.hpp"
+#include "../include/list_parser.hpp"
 
 #include <fstream>
 #include <stdexcept>
@@ -23,47 +24,47 @@ ListNode* ListStorage::Head() {
 }
 
 
-std::pair<std::string, int> ListStorage::ParseLine(
-    const std::string& line,
-    std::size_t line_number
-) {
-    const std::size_t separator_pos = line.rfind(kSeparator);
+// std::pair<std::string, int> ListStorage::ParseLine(
+//     const std::string& line,
+//     std::size_t line_number
+// ) {
+//     const std::size_t separator_pos = line.rfind(kSeparator);
 
-    if (separator_pos == std::string::npos) {
-        throw std::runtime_error(
-            "line " + std::to_string(line_number) + ": missing ';'"
-        );
-    }
+//     if (separator_pos == std::string::npos) {
+//         throw std::runtime_error(
+//             "line " + std::to_string(line_number) + ": missing ';'"
+//         );
+//     }
 
-    std::string data = line.substr(0, separator_pos);
+//     std::string data = line.substr(0, separator_pos);
 
-    if (data.size() > kMaxDataSize) {
-        throw std::runtime_error(
-            "line " + std::to_string(line_number) + ": data is too long"
-        );
-    }
+//     if (data.size() > kMaxDataSize) {
+//         throw std::runtime_error(
+//             "line " + std::to_string(line_number) + ": data is too long"
+//         );
+//     }
 
-    const std::string rand_text = line.substr(separator_pos + 1);
+//     const std::string rand_text = line.substr(separator_pos + 1);
 
-    std::size_t parsed = 0;
-    int rand_index = 0;
+//     std::size_t parsed = 0;
+//     int rand_index = 0;
 
-    try {
-        rand_index = std::stoi(rand_text, &parsed);
-    } catch (const std::exception&) {
-        throw std::runtime_error(
-            "line " + std::to_string(line_number) + ": invalid rand index"
-        );
-    }
+//     try {
+//         rand_index = std::stoi(rand_text, &parsed);
+//     } catch (const std::exception&) {
+//         throw std::runtime_error(
+//             "line " + std::to_string(line_number) + ": invalid rand index"
+//         );
+//     }
 
-    if (parsed != rand_text.size()) {
-        throw std::runtime_error(
-            "line " + std::to_string(line_number) + ": invalid rand index"
-        );
-    }
+//     if (parsed != rand_text.size()) {
+//         throw std::runtime_error(
+//             "line " + std::to_string(line_number) + ": invalid rand index"
+//         );
+//     }
 
-    return {std::move(data), rand_index};
-}
+//     return {std::move(data), rand_index};
+// }
 
 void ListStorage::FillLinks(const std::vector<int>& rand_indexes) {
     const std::size_t count = nodes.size();

@@ -16,12 +16,9 @@ public:
 
     void Serialize(const std::string& file_name) const;
     static ListStorage Deserialize(const std::string& file_name);
-
+    
 private:
-    static std::pair<std::string, int> ParseLine(
-        const std::string& line,
-        std::size_t line_number
-    );
+    
 
     void FillLinks(const std::vector<int>& rand_indexes);
 };
