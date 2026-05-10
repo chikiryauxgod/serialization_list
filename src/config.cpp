@@ -11,13 +11,14 @@ static std::string Trim(const std::string& s) {
     return s.substr(start, end - start + 1);
 }
 
-
 AppConfig AppConfig::FromFile(const std::string& path) {
     AppConfig cfg;
 
     std::ifstream in(path);
     if (!in) {
-        return cfg; // fallback to defaults
+        cfg.input_file = "inlet.in";
+        cfg.output_file = "outlet.out";
+        return cfg;
     }
 
     std::string line;
@@ -39,30 +40,13 @@ AppConfig AppConfig::FromFile(const std::string& path) {
         }
     }
 
-    return cfg;
-}
-
-
-AppConfig::AppConfig() {
-    ApplyDefaults();
-}
-
-
-void AppConfig::ApplyDefaults() {
-    input_file = "inlet.in";
-    output_file = "outlet.out";
-}
-
-
-void AppConfig::OverrideFromArgs(int argc, char** argv) {
-    for (int i = 1; i < argc; ++i) {
-        std::string arg = argv[i];
-
-        if (arg == "--input" && i + 1 < argc) {
-            input_file = argv[++i];
-        }
-        else if (arg == "--output" && i + 1 < argc) {
-            output_file = argv[++i];
-        }
+    if (cfg.input_file.empty()) {
+        cfg.input_file = "inlet.in";
     }
+
+    if (cfg.output_file.empty()) {
+        cfg.output_file = "outlet.out";
+    }
+
+    return cfg;
 }
