@@ -14,6 +14,8 @@ public:
     static ListStorage FromTextFile(const std::string& file_name);
     void PrintList(ListNode* head);
 
+    void Serialize(const std::string& file_name) const;
+
 private:
     static std::pair<std::string, int> ParseLine(
         const std::string& line,

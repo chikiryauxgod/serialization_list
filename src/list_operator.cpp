@@ -1,4 +1,4 @@
-#include "../include/list_reader.hpp"
+#include "../include/list_operator.hpp"
 
 #include <fstream>
 #include <stdexcept>
@@ -7,6 +7,7 @@
 #include <vector>
 #include <iostream>
 #include <unordered_map>
+#include <cstdint>
 
 namespace {
 
@@ -128,6 +129,7 @@ ListStorage ListStorage::FromTextFile(const std::string& file_name) {
 void ListStorage::PrintList(ListNode* head) {
     std::unordered_map<ListNode*, std::size_t> indexes;
     std::size_t index = 0;
+
     for (ListNode* current = head; current != nullptr; current = current->next) {
         indexes[current] = index++;
     }
@@ -140,5 +142,59 @@ void ListStorage::PrintList(ListNode* head) {
             std::cout << indexes.at(current->rand);
         }
         std::cout << '\n';
+    }
+}
+
+void ListStorage::Serialize(const std::string& file_name) const {
+    std::ofstream output(file_name, std::ios::binary);
+
+    if (!output) {
+        throw std::runtime_error("failed to open " + file_name);
+    }
+
+    const std::uint32_t count = static_cast<std::uint32_t>(nodes.size());
+
+    output.write(
+        reinterpret_cast<const char*>(&count),
+        sizeof(count)
+    );
+
+    std::unordered_map<const ListNode*, std::uint32_t> index_by_node;
+    index_by_node.reserve(nodes.size());
+
+    for (std::uint32_t i = 0; i < count; ++i) {
+        index_by_node[&nodes[i]] = i;
+    }
+
+    for (const auto& node : nodes) {
+        const std::uint16_t data_size =
+            static_cast<std::uint16_t>(node.data.size());
+
+        output.write(
+            reinterpret_cast<const char*>(&data_size),
+            sizeof(data_size)
+        );
+
+        output.write(
+            node.data.data(),
+            static_cast<std::streamsize>(data_size)
+        );
+
+        std::int32_t rand_index = -1;
+
+        if (node.rand != nullptr) {
+            rand_index = static_cast<std::int32_t>(
+                index_by_node.at(node.rand)
+            );
+        }
+
+        output.write(
+            reinterpret_cast<const char*>(&rand_index),
+            sizeof(rand_index)
+        );
+    }
+
+    if (!output) {
+        throw std::runtime_error("failed to write " + file_name);
     }
 }
