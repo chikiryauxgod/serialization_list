@@ -198,3 +198,38 @@ void ListStorage::Serialize(const std::string& file_name) const {
         throw std::runtime_error("failed to write " + file_name);
     }
 }
+
+ListStorage ListStorage::Deserialize(const std::string& file_name) {
+    std::ifstream in(file_name, std::ios::binary);
+    
+    if (!in) {
+        throw std::runtime_error("failed to open " + file_name);
+    }
+
+    std::uint32_t count = 0;
+    in.read(reinterpret_cast<char*>(&count), sizeof(count));
+
+    ListStorage storage;
+    storage.nodes.resize(count);
+
+    std::vector<int> rand_indexes;
+    rand_indexes.reserve(count);
+
+    for (std::uint32_t i = 0; i < count; ++i) {
+        std::uint16_t size = 0;
+        in.read(reinterpret_cast<char*>(&size), sizeof(size));
+
+        std::string data(size, '\0');
+        in.read(data.data(), size);
+
+        std::int32_t rand_index = 0;
+        in.read(reinterpret_cast<char*>(&rand_index), sizeof(rand_index));
+
+        storage.nodes[i].data = std::move(data);
+        rand_indexes.push_back(rand_index);
+    }
+
+    storage.FillLinks(rand_indexes);
+
+    return storage;
+}

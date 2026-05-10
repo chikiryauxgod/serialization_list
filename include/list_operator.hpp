@@ -15,6 +15,7 @@ public:
     void PrintList(ListNode* head);
 
     void Serialize(const std::string& file_name) const;
+    static ListStorage Deserialize(const std::string& file_name);
 
 private:
     static std::pair<std::string, int> ParseLine(
