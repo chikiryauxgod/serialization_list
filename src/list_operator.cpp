@@ -17,9 +17,11 @@ constexpr char kSeparator = ';';
 
 } // namespace
 
+
 ListNode* ListStorage::Head() {
     return nodes.empty() ? nullptr : &nodes.front();
 }
+
 
 std::pair<std::string, int> ListStorage::ParseLine(
     const std::string& line,
@@ -89,6 +91,7 @@ void ListStorage::FillLinks(const std::vector<int>& rand_indexes) {
     }
 }
 
+
 ListStorage ListStorage::FromTextFile(const std::string& file_name) {
     std::ifstream input(file_name);
 
@@ -126,6 +129,7 @@ ListStorage ListStorage::FromTextFile(const std::string& file_name) {
     return storage;
 }
 
+
 void ListStorage::PrintList(ListNode* head) {
     std::unordered_map<ListNode*, std::size_t> indexes;
     std::size_t index = 0;
@@ -144,6 +148,7 @@ void ListStorage::PrintList(ListNode* head) {
         std::cout << '\n';
     }
 }
+
 
 void ListStorage::Serialize(const std::string& file_name) const {
     std::ofstream output(file_name, std::ios::binary);
@@ -199,9 +204,10 @@ void ListStorage::Serialize(const std::string& file_name) const {
     }
 }
 
+
 ListStorage ListStorage::Deserialize(const std::string& file_name) {
     std::ifstream in(file_name, std::ios::binary);
-    
+
     if (!in) {
         throw std::runtime_error("failed to open " + file_name);
     }

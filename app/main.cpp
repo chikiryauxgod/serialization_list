@@ -3,26 +3,32 @@
 
 #include <iostream>
 #include <stdexcept>
-#include <unordered_map>
 
-int main() {
-
+int main(int argc, char** argv) {
     try {
-        const auto config = AppConfig::LoadConfig("config.cfg");
+        AppConfig config = AppConfig::FromFile("config.cfg");
 
-        auto storage = ListStorage::FromTextFile(config.input_file);
-        ListNode* head = storage.Head();
-        storage.PrintList(head);
-        storage.Serialize("outlet.out");
+        config.OverrideFromArgs(argc, argv);
 
-        storage = ListStorage::Deserialize("outlet.out");
-        ListNode* deserialized_head = storage.Head();
-        storage.PrintList(deserialized_head);
-        storage.Serialize("outlet2.out");
+        if (config.input_file.empty()) {
+            config.input_file = "inlet.in";
+        }
 
+        if (config.output_file.empty()) {
+            config.output_file = "outlet.out";
+        }
 
-    } catch (const std::exception& error) {
-        std::cerr << "Error: " << error.what() << '\n';
+        ListStorage storage = ListStorage::FromTextFile(config.input_file);
+
+        storage.Serialize(config.output_file);
+
+        ListStorage restored = ListStorage::Deserialize(config.output_file);
+
+        storage.PrintList(storage.Head());
+        restored.PrintList(restored.Head());
+
+    } catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << '\n';
         return 1;
     }
 
